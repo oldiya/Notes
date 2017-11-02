@@ -1,0 +1,91 @@
+---
+title: "Visualization Notes"
+author: "Olalla Díaz-Yáñez"
+date: "1 November 2017"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+---
+
+* * *
+**NOTE**
+
+This text serves as notes of the Research Methods in Forest Sciences 2017 class (01/11/2017). It is not a book or any official document, and although it has been created to somehow being useful it comes with absolutely no warranty of any sort. As any work in progress you might find incomplete information and mistakes. I welcome constructive criticism and new ideas.
+
+* * *
+
+
+## Introduction
+
+In the past the challenge of a researcher was to get data. We are now leaving times where in most cases the lack of data it is not the problem or even the contrary, we have too much data. Nowadays the powerful development of data-mining technologies demands that researchers and engineers are conscious of the interaction between massive quantities of information and are able to show those in graphs, maps, etc. Here, we discuss about practical concepts of graphic design related to data visualization. Most of the content collected here is based on Edward Tufte books. If you want to know more about this topic I encourage you to start with the book "The Visual Display of Quantitative Information".
+
+**Data Visualization:** the study of the visual representation of data, or in other words making data easy to understand. 
+
+Although you might think that graphs have been around for a very long time, they were not. It was fascinating for me to find out that the very first graph we know appear almost 200 years after the discovering of the probability theory. This delay was because it is not that easy to create data graphs, you need more than statistical knowledge to make a good graph, for example visual-artistic skills.
+
+## What makes a good graph?
+
+Graphical excellence related to statistical graphs aims at communicate complex ideas with clarity, precision and efficiency. According to Tufte, Graphical displays should:
+
+* Show the data
+* induce the viewer to think about the substance rather than about methodology, graphic
+design, technology of graphic production or something else
+* avoid distorting what the data have to say
+* present many numbers in small space
+* make large data-set coherent
+* encourage the eye compare to different pieces of data
+* reveal the data at several levels of detail, from a broad overview to the fine structure 
+* serve a reasonably clear purpose: description, exploration, tabulation or decoration
+* be closely integrated with the statistical and verbal descriptions of the data-set.
+
+**Graphics reveal data:**  Graphics can help to better understand our data that just numbers from statistical analysis as the famous Anscombe’s quartet proves. But that also works the other way around, if you have bad data, a fancy graph is not going to save it, the graphs are going to be as good as what you put into the graphs.
+
+**Graphs for big an variable datasets:**  It also crucial to evaluate when a graph is really needed and when it is not. Sometimes a description in the text or a table are going to be more efficient than making a graph, in general lines graphs are for multivariate information. And here is were the challenge of making good graphs appear. How do we combine the information of different variables in a way that the viewer gets the data information but is not aware of the complexity behind, or in other words, that they do not have to be thinking about how complex the graph is but about the data, we want to tell them something not to show them how complex our graph is. 
+
+
+The Edward Tufte principles of graphical excellence are:
+
+* Graphical excellence is the well-design presentation of interesting data- a matter of substance, of statistics and of design.
+* Graphical excellence consists of complex ideas communicated with clarity, precision and efficiency.
+* Graphical excellence is that which gives ti the viewer the greatest number if ideas in the shortest time with the least ink in the smallest space.
+* Graphical excellence is nearly always multivariate.
+* Graphical excellence requires to tell the truth about the data.
+
+## Distortion in a Data Graphic
+
+Of course graphs can be manipulated, same as words, images, etc. I do no think they are more vulnerable than them. What is true is that we tend to believe more an information if it appears in a graph, and we usually do not question much the graph. Are the axes in the correct scale?, are we comparing comparable variables/treatments in the graph? It is very important that we question a graph when we see it. 
+
+There is also another type of distortion, graphs that are over decorated, to the point that distract the viewer from what is important: the data. The graph design has to serve the facilitation of data exploring. Graphical excellence begins with telling the truth about the data, anything that goes against that will go against a good graph.
+
+## Graphs in the master thesis or scientific articles
+
+The general principles when designing a visualization for our thesis are based in what we have discussed above:
+
+* First ask if you really need a graph/table to show the data
+* If you do follow the principles of graphical excellence, specially noticing that you are really showing the data
+* The graph has to be clear. Unsure? give the graph to a colleague and ask her/him to interpret your results
+* It has to be Well-labeled, the viewer has to be able to understand the graph without reading the results section
+
+* The graphs are meant to complement and clarify your text (not viceversa)
+* Be simple, do not add unnecessary complications in your graphs.
+* The graphs has to have a purpose or objective
+* Figure legend is placed under the figure and table heading above table.
+* Always follow the instructions given for your thesis or the journal instructions, there might be other details that they have recommended and you have to also follow them.
+
+
+Here you have a fun video about how stories can be told in a graph (Kurt Vonnegut on the Shapes of Stories):
+
+```{r video, echo=FALSE}
+library("htmltools")
+library("vembedr")
+embed_url("https://www.youtube.com/watch?v=oP3c1h8v2ZQ")
+```
+
+
+
+
+
+
+
+

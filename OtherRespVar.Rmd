@@ -1,0 +1,312 @@
+---
+title: "Other response variables Notes"
+author: "Olalla Díaz-Yáñez"
+date: "30 October 2017"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+* * *
+**NOTE**
+
+This text serves as notes of the Research Methods in Forest Sciences 2017 class (30/10/2017). It is not a book or any official document, and although it has been created to somehow being useful it comes with absolutely no warranty of any sort. As any work in progress you might find incomplete information and mistakes. I welcome constructive criticism and new ideas.
+
+* * *
+
+
+
+## Introduction
+
+Until now you have explored cases where the response variable has been a continuous real number (e.g. height, weight, length,...), and you have learnt how those variables can be modeled using a linear model. When we modeled continuous response variables using linear models we made several important assumptions about its behaviors:
+
+* constant variance
+* normal errors
+* independent errors
+* random sampling
+
+In real life, many times we will also work with other response variables like frequencies or counts, in those cases the response it is not anymore a continuous variable. These response variables violate some of the assumptions that we made when using linear models. Some of these response variables are: 
+
+* count data
+* proportion data
+* binary response data
+* survival data (age-at-death data)
+
+All of these responses variables fail the assumptions about constancy of variance and normality of errors. 
+
+Here we are going to discuss why we can not use linear models when the response variables are frequencies or counts and what is then the best aproach to model them.
+
+## Count data
+
+Count data is data on frequencies, we count how many times something happened (whole numbers or integers). For example: 
+
+* Number of dead trees after storm
+* Number of people visiting my web page per day
+* Number of red blood cells on a microscope slide
+
+In these cases we know the number of times that something happen, but not the number of times it did not happen. For example I know the number of visitors in my web but I do not know the number of people that did not visit my web and was online on the same day.
+
+If we use the second example: "Number of people visiting my web page per day":
+
+**Response variable (count):** the number of reported visitors per day in my web
+
+**Explanatory variable:** the number of days since my web is online
+
+This is the graph plotting the data:
+
+```{r count data 1, echo=FALSE}
+
+# regression
+
+    nvisitors <- c(0,0,6,0,1,0,4,0,3,0,3,2,0,0,0,1,2,1,0,0,1,0,3,2,2,1,0,0,0,
+                   3,1,1,0,0,2,0,0,0,2,2,4,0,3,0,0,1,0,3,2,0,0,1,1,0,2,1,0,2,
+                   0,1,1,0,0,0,0,1,2,1,0,0,0,1,0,0,1,0,0,4,1,1,0,0,1,1,2,3,1,0,
+                   0,0,0,1,0,0,0,1,0,0,0,1)
+  
+    days <- 1:100
+    webvisitors <- data.frame(days, nvisitors)
+
+    plot(webvisitors$days, webvisitors$nvisitors, pch=21, bg="blue", 
+         xlab = "Days", 
+         ylab = "Visitors in my web",
+         xlim= c(0,100))
+  
+```
+
+
+### Variance in count data
+
+When the amount of counts is low (e.g. many days I get 0 visitors, and other days I get 1 or 2 visitors) the mean number of visitors across the 100 days is going to be low. When the mean is low the variance is also low (remember that variance is the sum of the squares of the departures of the counts from the mean count, divided by the degrees of freedom). But when the mean is high, for example if the number visitors in my web vary between 0 and 50 across 100 days having many of the days more than 20 visitors; when I calculate the residuals in this case and square them we can expect to obtain very large numbers, and a consequently high variance. This means that for count data the variance is expected to increase with the mean, rather than being constant (as assumed in linear models).
+
+```{r count data 0, echo=FALSE, fig.height = 4, fig.width = 4}
+    plot(NULL, xlim=c(0,1), ylim=c(0,1), ylab="Variance", xlab="Mean", axes=F,
+         main="Variance for count data")
+    box()
+    abline( 0, 1, col="blue", lwd=2)
+```
+
+**Problem 1:** Count data variance is expected to increase with the mean, rather than being constant.  
+
+
+### Problems of modelling count data with a linear model
+
+Lets now try to answer the question: Does time (number of days since I published my web) affects the number of web visitors? 
+
+The first thing we can do is to look at the data plot (above). As you can see the values of the response "number of visitors in my web", are dispersed in discrete rows and don’t cluster around a regression line. You can also notice that there are a lot of zeros, many of the days I did not get any visitor in the web. There seems to be a negative trend in the data, as more days passed by I had less visitors, but is the trend significant?
+
+If I try to obtain a linear model using R I obtain this summary model output: 
+
+```{r count data 2, echo=FALSE}
+   plot(webvisitors$days, webvisitors$nvisitors, pch=21, bg="blue", 
+         xlab = "Days", 
+         ylab = "Visitors in my web",
+         xlim= c(0,200))
+    model <- lm(webvisitors$nvisitors~webvisitors$days)
+    summary(model)
+    abline( 1.304848, -0.008413, col="black")
+```
+
+The black line is the linear model that I obtained. If you pay attention you will notice that the linear model (black line) is predicting that after approx. 170 days of my web being online I will have negative visitors! Count data are strictly bounded below, I can not have negative visitors in my web, I can only have 0 or more visitors. 
+
+**Problem 2:** The response is a count and thus is non-negative, but our linear model doesn’t acknowledge that. 
+
+If we now have a look to the residuals using the linear model: 
+
+```{r count data 3, echo=FALSE}
+    plot(webvisitors$days, webvisitors$nvisitors, pch=21, bg="blue", 
+         xlab = "Days", 
+         ylab = "Visitors in my web",
+         xlim= c(0,200))
+    model <- lm(webvisitors$nvisitors~webvisitors$days)
+    abline( 1.304848, -0.008413, col="black")
+    fittedVisitors <- predict(model)
+    # Draw residue lines 
+    for (i in 1:100)
+        lines (c(webvisitors$days[i], webvisitors$days[i]), 
+               c(webvisitors$nvisitors[i], fittedVisitors[i]), col="red")
+```
+
+As you already know in a linear model the errors are typically assumed Gaussian. In the graph above you can see that the residuals (red lines) do not have a normal distributed as we assumed, normal distribution of the errors is not an accurate approximation for small counts as you can see in this graph.
+
+**Problem 3:** The errors are not normally distributed.
+
+
+**Conclusion:** Straightforward linear regression methods (assuming constant variance and normal errors) are not appropriate for count data for four main reasons: 
+
+* the variance of the response variable is likely to increase with the mean
+
+* the linear model might lead to the prediction of negative counts
+ 
+* the errors will not be normally distributed
+
+
+
+## Proportion data
+
+The main difference between count data and proportional data, is that in proportional data we have the counts of individuals doing one thing but also the number of individuals not doing that thing, if we take the same example as before where we knew the number of people visiting my webpage, a proportional data will require that we also know the number of people that where online but did not visit my page, or maybe a more realistic example: we know after a storm the number of trees that fell down and we also know the number of trees that did not fell down. The individuals doing "the thing" are consider successes and the ones don't doing it are the failures, although this might sound a bit weird specially when we consider a "success" something failing or dying. The important thing here is that both counts are susceptible to change (both the number of successes and the number of failures). 
+
+Having both the information of successes and failures is what give the proportion value and it is also interesting to know from where this proportion was originated e.g. if 1 tree out of 5 fall down after a storm, the 20% of the trees, should not be considered in the same manner as 10 trees out of 50 (also 20% of the trees).
+
+**Problem 1:** by calculating the percentage or proportion and just using this value for modelling, we lose information of the size of the sample from which the proportion was estimated.
+
+Other proportional data examples: 
+
+* Number of dead and alive trees after a storm
+* Infection rates of diseases
+* Proportion admitting to particular voting intentions
+
+Lets look at one of this examples: Proportion of people visiting my web page per day.
+
+**Response variable (proportion):** the number of reported visitors per day in my web divided by the total number of people online that day (total number of people online that day = visitors + no visitors).
+
+**Explanatory variable:** the number of days since my web is online.
+
+Here is the data table and the data plot:
+
+```{r prop data 1, echo=FALSE}
+
+# regression
+
+    nNOvisitors <- c(1,4,9,20,24,40,45,55,80,85)
+    visitors<- c(0,1,3,4,33,80,100,130,140,150)
+    days <- 1:10
+    propwebvisitors <- data.frame(Days=days, Visitors=visitors,
+                                  NoVisitors=nNOvisitors,
+                                  Proportion=round(visitors/(nNOvisitors+visitors),2))
+    print(propwebvisitors)
+    plot(days,  (visitors/(nNOvisitors+ visitors))*100, pch=21, bg="blue", 
+         xlab = "Days", 
+         ylab = "Proportion of visitors in my web (%)",
+         xlim= c(0,10))
+  
+```
+
+* * *
+
+**Note:** 
+
+Do you know how to calculate the average proportion of visitors across all days? 
+
+Is it done like this?:
+(0.00 + 0.20 + 0.25 + 0.17 + 0.58 + 0.67 + 0.69 + 0.70 + 0.64 + 0.64)/10 = 0.454 
+
+No! This is WRONG. 
+
+The correct way to obtain the mean proportion is to divide the total number of successes by the total number of attempts:
+
+sum(visitors)=0+1+3+4+33+80+100+130+140+150=363
+
+sum(NoVisitors)=1+4+9+20+24+40+45+55+80+85=641
+
+mean proportion = 363/(641+363) = 0.36
+
+* * *
+
+
+### Variance in proportional data
+
+If I have all successes, e.g. everyone online is visiting my webpage every day, I will have a 100% of success. Then all the cases are similar and I will have a zero variance. I will have the same if the contrary happens, no one online visit my webpage, I will have a 0% of success. In this case also all the individuals are alike and my variance will be zero. But if I have a 50% success rate a mean value, some of the individuals are in one class and some are not, I will have different observation, some close to 50% and some far, and then the variance will be higher. This means that the variance distribution in proportional data does not increase with the mean, in this case the variance is a humped function of the mean: 
+
+```{r prop data 0, echo=FALSE, fig.height = 4, fig.width = 4}
+    curve(sin(x), from=0, to=3.2, n=200, xlab="Mean", ylab="Variance", 
+          col="blue", lwd=2, main="Variance for proportional data", axes=F)
+     box()
+```
+
+**Problem 2:** Proportional data variance follows a humped function of the mean, rather than being constant.  
+
+### Problems of modelling proportional data with a linear model
+
+Proportional data is bounded between 0 and 100%, meaning that we can not have values bellow zero or above 100 in the predictor variable. If we try to model proportion data with a linear model we will also violate some of the assumptions that we make using a linear model. Lets see this also with an example. 
+
+```{r prop data 2, echo=FALSE}
+    plot(days,  (visitors/(nNOvisitors+ visitors))*100, pch=21, bg="blue", 
+         xlab = "Days", 
+         ylab = "Proportion of visitors in my web (%)",
+         xlim= c(0,20), ylim= c(0,120))
+    model <- lm((visitors/(nNOvisitors+ visitors))*100~days)
+    abline( 2.895, 7.709, col="black")
+
+```
+
+The linear model is predicting that from 15 day of my web page being online I will have more that 100% as a proportion of visitors in my web page, which makes no sense. 
+
+**Problem 3:** The response is a proportion and thus is bounded between 0 and 100%, but our linear model doesn’t acknowledge that.  
+
+
+```{r prop data 3, echo=FALSE}
+    plot(days,  (visitors/(nNOvisitors+ visitors))*100, pch=21, bg="blue", 
+         xlab = "Days", 
+         ylab = "Proportion of visitors in my web (%)",
+           xlim= c(0,10), ylim= c(0,100))
+    model <- lm((visitors/(nNOvisitors+ visitors))*100~days)
+    abline( 2.895, 7.709, col="black")
+    fittedVisitors <- predict(model)
+    # Draw residue lines 
+    for (i in 1:10)
+        lines (c(days[i], days[i]), 
+               c((visitors/(nNOvisitors+ visitors)*100)[i], fittedVisitors[i]), col="red")
+```
+
+
+**Problem 4:** The errors are not normally distributed.
+
+**Conclusion:** Straightforward linear regression methods  (assuming constant variance and normal errors) and using the percentage of the proportion value as a predictor variable are not appropriate for proportion data for four main reasons: 
+
+* the linear model might lead to the prediction outside 0-100%
+
+* the variance of the response variable will not follow a normal distribution
+ 
+* the errors will not be normally distributed
+
+* by calculating the percentage, we lose information of the size of the sample from which the proportion was estimated 
+
+
+## Binary response data
+
+Many statistical analysis will have a binary response, or in other words the response variable only contain 0s or 1s, and those will be collected in a single column, which is the main difference with proportional data. For example: 
+
+* Dead (1) or alive (0)
+* healthy (1) or diseased (0)
+* Female (1) or male (0)
+
+If you are thinking that you could calculate the total counts of 0s and 1s and then you will have a proportional data, you are correct. But then when we do consider this as binomial data and when we do consider it as proportional data? The answer is simple, you have to ask yourself, do I have unique values for each of the individuals from one or more explanatory variables? If the answer is yes, then it will be probably more interesting to analyze your response variable as binary, but of course this will always depend on what question you want to answer. Lets see this with an example:
+
+**Count:** the number of uprooted trees after a storm
+
+**Explanatory variables available:** Tree diameter, tree height, plot basal area, plot mean diameter, and plot latitude.
+
+If I want to answer the question:
+
+Does the tree vulnerability of a tree change with the tree diameter? [Binomial]
+
+Does the plot vulnerability changes with the structure (e.g. with the plot denisty)? [Proportional]
+
+
+## How do we model other response variables?
+
+Count data, proportional data and binomial data can be dealt with generalized linear models (GLMs). GLMs allow variance to be non-constant and errors to be non-normally distributed but still assume random sampling and independence of errors. 
+
+First we will have to think about the nature of the response variable in each case: 
+
+A generalized linear model has two main parts:
+
+* a link function that describes how the mean depends on the linear predictor
+* a variance function that describes how the variance of y depends on the mean
+
+**The link function:** The link function is the relationship between the measured response variable (e.g. proportion of damaged trees in a plot) and the model linear predictors. The criterion to chose the correct link function is to ensure that the response variable stays between reasonable values (e.g. proportional data 0-1 or count data >0). In the case of counts the link function is log link and in the case of proportional data and binomial data you will use a logit link.
+
+**Variance function:** GLMs are able to deal with errors that are not normally distributed. In the past the only way to deal with this problem was to transform the response variable or to adopt non-parametric methods. The advantage here is that GLMs allow us to specify different error distributions. For the data examples we saw those will be:
+
+* Poisson errors, useful with count data
+* Binomial errors, useful with data on proportions (Bernoulli for binomial data) 
+
+Maybe you are wondering why not just transform the response variable and model it like that as a linear regression? If we transform the response variable we might be able to account both for the non-normal variance and heteoscedasticity, but some other times we won't. Also GLMs are more flexible as they allow a separate modeling of linearity and variance relationships. Further, if you transform the response variable, then you transform also the variance of your response variable. A log transformation of the response variable will lead to the assumption that your variance is in fact log-normally distributed, and we do not know that. In contrast, using the link function only affects the linearity assumption, not the variance. The log is taken of the mean (expected value), and thus the variance of the residuals is not affected.
+
+The general idea here is that when we have a non constant variance and the errors are not normally distributed, we have to do something about as we can not use a linear model. Using generalized linear models instead is often the best solution. To use generalized linear models you will need a deeper understanding of concepts like deviance, link functions and linear predictors, but I am sure that won't be a problem, you will just need to spend more time studying these subjects and I am happy to help you! 
